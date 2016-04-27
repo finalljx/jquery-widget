@@ -1,0 +1,18 @@
+{
+    "root": true,
+
+    "globals": {
+        "module": true,
+        "require": true
+    },
+
+    "env": {
+        "browser": true
+    },
+
+    "extends": "eslint:recommended",
+
+    "rules": {
+        "no-console": 1
+    }
+}
