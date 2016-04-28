@@ -3,7 +3,8 @@
 
     "globals": {
         "module": true,
-        "require": true
+        "exports": true,
+        "require": false
     },
 
     "env": {

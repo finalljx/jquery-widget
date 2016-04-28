@@ -1,9 +1,7 @@
 var $ = require('jquery');
 var extend = require('../util/extend');
-var VNode = require('../virtual-dom/vnode');
-var VWidget = require('../virtual-dom/vwidget');
-var patch = require('../virtual-dom/patch');
 var md5 = require('blueimp-md5');
+var vd = require('../virtual-dom');
 
 var toString = function (obj) {
     if (!obj) {
@@ -14,7 +12,7 @@ var toString = function (obj) {
         if (obj.hasOwnProperty(key)) {
             value = obj[key];
             str.push(key);
-            str.push(typeof value === 'object' ? toString(value) : Object.prototype.toString.call(value))
+            str.push(typeof value === 'object' ? toString(value) : typeof value === 'undefined' ? value : value.toString());
         }
     }
     return str.join('');
@@ -42,7 +40,7 @@ $.Widget.prototype = {
         children = $.grep(children, function (child) {
             return typeof child !== 'undefined';
         });
-        var vdom = new (typeof widget === 'string' ? VNode : VWidget)(widget, props, children);
+        var vdom = new vd[(typeof widget === 'string' ? 'VNode' : 'VWidget')](widget, props, children);
         vdom.key = md5(this.widgetName + widget.toString() + toString(props));
         return vdom;
     },
@@ -66,25 +64,23 @@ $.Widget.prototype = {
         $(element).append(this.element);
         element = this.element[0];
 
-        if ( element !== this ) {
-            $.data( element, 'widget-' + this.widgetName, this );
-            $.data( element, 'widget', this.widgetName );
-            this._on( true, this.element, {
-                remove: function( event ) {
-                    if ( event.target === element ) {
-                        this.destroy();
-                    }
+        $.data( element, 'widget-' + this.widgetName, this );
+        $.data( element, 'widget', this.widgetName );
+        this._on( true, this.element, {
+            remove: function( event ) {
+                if ( event.target === element ) {
+                    this.destroy();
                 }
-            } );
-            this.document = $( element.style ?
+            }
+        } );
+        this.document = $( element.style ?
 
-                // Element within the document
-                element.ownerDocument :
+            // Element within the document
+            element.ownerDocument :
 
-                // Element is window or document
-                element.document || element );
-            this.window = $( this.document[ 0 ].defaultView || this.document[ 0 ].parentWindow );
-        }
+            // Element is window or document
+            element.document || element );
+        this.window = $( this.document[ 0 ].defaultView || this.document[ 0 ].parentWindow );
 
         this._create();
 
@@ -176,7 +172,7 @@ $.Widget.prototype = {
             }
         }
 
-        this._setOptions( extend({}, options ) );
+        this._setOptions( options );
 
         return this;
     },
@@ -189,7 +185,9 @@ $.Widget.prototype = {
         }
 
         var vtree = this.render();
-        patch(this.element, this.vtree, vtree);
+        var patches = vd.diff(this.vtree, vtree).patches;
+        console.log(this.element[0], patches);
+        vd.patch(this.element, patches);
         this.vtree = vtree;
 
         return this;
@@ -200,7 +198,7 @@ $.Widget.prototype = {
             this._setOptionClasses( value );
         }
 
-        this.options[ key ] = value;
+        this.options[ key ] = $.isPlainObject(value) ? extend({}, value) : value;
 
         if ( key === "disabled" ) {
             this._setOptionDisabled( value );

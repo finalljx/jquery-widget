@@ -1,8 +1,10 @@
-var diff = require('./diff');
 var patchType = require('./constant/patchType');
 var $ = require('jquery');
 
 function patch(node, patches) {
+    if (!(this instanceof patch)) {
+        return new patch(node, patches);
+    }
     this.root = node;
     this.patches = patches;
     this.index = -1;
@@ -57,7 +59,4 @@ patch.prototype = {
     }
 };
 
-module.exports = function (node, oldTree, newTree) {
-    var patches = diff(oldTree, newTree).patches;
-    new patch(node, patches);
-};
+module.exports = patch;

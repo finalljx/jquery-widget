@@ -3,14 +3,16 @@
 
 [jQuery UI Widget Factory](http://api.jqueryui.com/jQuery.widget/) is a tiny but powerfull framework for building UI components.
 
-I extend it with virtual dom for working with flux and redux or other similar tools.
+For working with flux/redux or other similar tools, extend it with the support of jsx and virtual dom,
+so it can be used as an independent view component, just like React.
 
-## Difference to original implementation
+## Difference to the original implementation
 
 - Remove the namespace
 - Remove the global reference such as `jQuery.ui`
 - Remove the feature of class redefining
-- Add the support of virtual dom
+- Make the widget class local
+- Add the support of jsx and virtual dom
 
 ## Example from flux-todomvc
 
@@ -73,5 +75,7 @@ var TodoApp = $.widget('TodoApp', {
 - [flux-todomvc](https://github.com/facebook/flux/tree/master/examples/flux-todomvc)
 
 ## License
+
 Copyright (c) 2016 viclm
+
 Licensed under the MIT license.
